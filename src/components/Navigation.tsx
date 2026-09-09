@@ -1,11 +1,15 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Menu, X, Camera, Power, Minimize2, Smartphone, Monitor, ChevronLeft, ChevronRight, Plus, UserPlus } from 'lucide-react'
+import {
+  Menu, X, Camera, Power, Minimize2, Smartphone, Monitor, ChevronLeft, ChevronRight, Plus, UserPlus,
+  LayoutGrid, Calendar, Wrench, Users, FileText, Scale, Truck, AlertTriangle, Settings, FolderOpen, Inbox, FileCheck
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { NAV_ITEMS, FOOTER_NAV } from '../lib/navigation'
 import { useTheme } from '../lib/theme'
 import { useUIState } from '../lib/uiStateContext'
 import { useMobileMode } from '../lib/mobileMode'
 import { MetisVoiceCall } from './MetisVoiceCall'
+import { KittScannerLine } from './KittScannerLine'
 import { can, getPerfil } from '../services/authService'
 import { supabase } from '../lib/supabase'
 
@@ -194,37 +198,56 @@ export function MobileFooter() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Sonido de tap al pulsar botón de menú
-  const [animatingBtn, setAnimatingBtn] = useState<string | null>(null)
+  // Estados de apertura de Metis para la línea de escáner KITT
+  const [metisAssistantOpen, setMetisAssistantOpen] = useState(false)
+  const [metisVoiceActive, setMetisVoiceActive] = useState(false)
 
   useEffect(() => {
     const handleToggle = (e: Event) => {
       const detail = (e as CustomEvent).detail
       setShouldHide(!!detail?.hide)
     }
+
+    const handleAssistantStatus = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail && typeof detail.open === 'boolean') {
+        setMetisAssistantOpen(detail.open)
+      }
+    }
+
+    const handleVoiceStatus = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail && typeof detail.isActive === 'boolean') {
+        setMetisVoiceActive(detail.isActive)
+      }
+    }
+
     window.addEventListener('gestarian-toggle-footer', handleToggle)
-    return () => window.removeEventListener('gestarian-toggle-footer', handleToggle)
+    window.addEventListener('metis-assistant-status', handleAssistantStatus)
+    window.addEventListener('metis-voice-status', handleVoiceStatus)
+    return () => {
+      window.removeEventListener('gestarian-toggle-footer', handleToggle)
+      window.removeEventListener('metis-assistant-status', handleAssistantStatus)
+      window.removeEventListener('metis-voice-status', handleVoiceStatus)
+    }
   }, [])
 
   if (shouldHide) {
     return null
   }
 
-  const triggerAnimatedAction = (btnKey: string, action: () => void) => {
-    if ('vibrate' in navigator) navigator.vibrate([30, 40, 50])
+  // Clics directos sin animaciones ni retrasos molestos en los iconos del footer
+  const handleFooterAction = (action: () => void) => {
+    if ('vibrate' in navigator) navigator.vibrate(30)
     playSound('click')
-    setAnimatingBtn(btnKey)
-    setTimeout(() => {
-      setAnimatingBtn(null)
-      action()
-    }, 450)
+    action()
   }
 
-  const handleNavClick = (path: string) => {
+  const handleNavClick = (path: string, state?: any) => {
     if ('vibrate' in navigator) navigator.vibrate(40)
     playSound('click')
     setMenuOpen(false)
-    navigate(path)
+    navigate(path, state ? { state } : undefined)
   }
 
   const isA4Document = ['/presupuestos', '/presupuesto-hibrido'].includes(location.pathname)
@@ -240,52 +263,74 @@ export function MobileFooter() {
   // En modo usuario normal, solo ven en el footer los iconos de Cámara y Menú.
   const showAiControls = !isClientePortal && isDev
 
+  // Modo del escáner KITT bajo el footer:
+  // - Si voz bidireccional activa -> modo 'bidirectional' (KITT Rojo con puntos cuadrados)
+  // - Si asistente METIS abierto -> modo 'metis-ai' (Turquesa con centro claro y estela)
+  // - Si ninguno está abierto -> 'off'
+  const scannerMode: 'off' | 'metis-ai' | 'bidirectional' = metisVoiceActive
+    ? 'bidirectional'
+    : (metisAssistantOpen ? 'metis-ai' : 'off')
+
   return (
     <>
       {location.pathname !== '/' && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/90 via-black/[0.65] to-transparent z-40 pointer-events-none" />
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-black/90 via-black/[0.65] to-transparent z-40 pointer-events-none" />
       )}
-      <nav className={`lg:hidden fixed bottom-6 left-0 right-0 z-50 flex items-center ${showAiControls ? 'justify-between' : 'justify-center gap-8'} px-6`}>
-        <button
-          onClick={() => triggerAnimatedAction('camera', () => navigate('/presupuesto-hibrido', { state: { startCamera: true } }))}
-          className={`w-16 h-16 rounded-full bg-transparent text-[#40e0d0] shadow-[0_0_10px_rgba(64,224,208,0.9),inset_0_0_5px_rgba(64,224,208,0.9)] border-[1px] border-white flex items-center justify-center transition-all hover:scale-105 flex-shrink-0 ${animatingBtn === 'camera' ? 'scale-125 border-cyan-400' : ''}`}
-          style={{ filter: 'drop-shadow(0 0 5px rgb(64, 224, 157))' }}
-          aria-label="Cámara"
-        >
-          <div className={animatingBtn === 'camera' ? 'animate-icon-burst' : ''}>
+      
+      {/* Contenedor del footer: iconos + línea del coche fantástico justo debajo */}
+      <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50 flex flex-col items-center pointer-events-none">
+        <nav className={`pointer-events-auto w-full flex items-center ${showAiControls ? 'justify-between' : 'justify-center gap-8'} px-6`}>
+          {/* Botón Cámara estático */}
+          <button
+            onClick={() => handleFooterAction(() => navigate('/presupuesto-hibrido', { state: { startCamera: true } }))}
+            className="w-16 h-16 rounded-full bg-transparent text-[#40e0d0] shadow-[0_0_10px_rgba(64,224,208,0.9),inset_0_0_5px_rgba(64,224,208,0.9)] border-[1px] border-white flex items-center justify-center transition-transform active:scale-95 flex-shrink-0"
+            style={{ filter: 'drop-shadow(0 0 5px rgb(64, 224, 157))' }}
+            aria-label="Cámara"
+          >
             <Camera className="w-7 h-7" strokeWidth={1} color="white" />
-          </div>
-        </button>
+          </button>
 
-        <button
-          onClick={() => triggerAnimatedAction('menu', () => setMenuOpen(!menuOpen))}
-          className={`w-16 h-16 rounded-full bg-transparent text-[#d3d3d3] shadow-[0_0_10px_rgba(211,211,211,0.9),inset_0_0_5px_rgba(211,211,211,0.9)] border-[1px] border-white flex items-center justify-center transition-all hover:scale-105 flex-shrink-0 ${animatingBtn === 'menu' ? 'scale-125 border-orange-400' : ''}`}
-          style={{ filter: 'drop-shadow(0 0 5px #f15b04e7)' }}
-          aria-label="Menú"
-        >
-          <div className={animatingBtn === 'menu' ? 'animate-icon-burst' : ''}>
+          {/* Botón Menú estático */}
+          <button
+            onClick={() => handleFooterAction(() => setMenuOpen(!menuOpen))}
+            className="w-16 h-16 rounded-full bg-transparent text-[#d3d3d3] shadow-[0_0_10px_rgba(211,211,211,0.9),inset_0_0_5px_rgba(211,211,211,0.9)] border-[1px] border-white flex items-center justify-center transition-transform active:scale-95 flex-shrink-0"
+            style={{ filter: 'drop-shadow(0 0 5px #f15b04e7)' }}
+            aria-label="Menú"
+          >
             {menuOpen ? <X className="w-7 h-7" strokeWidth={1} color="white" /> : <Menu className="w-7 h-7" strokeWidth={1} color="white" />}
-          </div>
-        </button>
+          </button>
 
-        {showAiControls && (
-          <>
-            <button
-              onClick={() => triggerAnimatedAction('ai', () => window.dispatchEvent(new Event('metis-toggle-panel')))}
-              className={`w-16 h-16 rounded-full bg-transparent text-white shadow-[0_0_5px_rgba(168,85,247,1)] border-[1px] border-white/50 flex items-center justify-center transition-all hover:scale-105 flex-shrink-0 relative animate-pulse ${animatingBtn === 'ai' ? 'scale-125 border-purple-400' : ''}`}
-              style={{ backgroundColor: 'rgba(0,0,0,0)' }}
-              aria-label="Asistente METIS"
-            >
-              <div className={animatingBtn === 'ai' ? 'animate-icon-burst' : ''}>
+          {showAiControls && (
+            <>
+              {/* Botón METIS AI estático (sin animaciones) */}
+              <button
+                onClick={() => handleFooterAction(() => window.dispatchEvent(new Event('metis-toggle-panel')))}
+                className={`w-16 h-16 rounded-full bg-transparent text-white border-[1px] flex items-center justify-center transition-transform active:scale-95 flex-shrink-0 relative ${
+                  metisAssistantOpen
+                    ? 'border-[#40e0d0] shadow-[0_0_12px_rgba(64,224,208,0.9),inset_0_0_5px_rgba(64,224,208,0.7)]'
+                    : 'border-white/50 shadow-[0_0_5px_rgba(168,85,247,1)]'
+                }`}
+                style={{ backgroundColor: 'rgba(0,0,0,0)' }}
+                aria-label="Asistente METIS"
+              >
                 <span className="font-thin text-[32px] text-transparent tracking-widest drop-shadow-[0_0_5px_rgba(168,85,247,1)]" style={{ WebkitTextStroke: '1px white' }}>AI</span>
-              </div>
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-[2px] border-transparent animate-metis-ping" />
-            </button>
+                {/* Indicador de estado estático sin animación ping */}
+                <span className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border border-black ${metisAssistantOpen ? 'bg-[#40e0d0]' : 'bg-emerald-400'}`} />
+              </button>
 
-            <MetisVoiceCall />
-          </>
+              {/* Botón Conversación Bidireccional estático */}
+              <MetisVoiceCall />
+            </>
+          )}
+        </nav>
+
+        {/* Línea del coche fantástico KITT bajo los iconos del footer ocupando el 80% de ancho */}
+        {scannerMode !== 'off' && (
+          <div className="w-full flex justify-center pointer-events-auto mt-2">
+            <KittScannerLine mode={scannerMode} />
+          </div>
         )}
-      </nav>
+      </div>
 
       {menuOpen && (
         <div
@@ -381,7 +426,7 @@ export function MobileFooter() {
                 .bento-btn span {
                   color: #e2e8f0;
                   font-weight: 800;
-                  font-size: 1.3125rem;
+                  font-size: clamp(1rem, 3.8vw, 1.25rem);
                   line-height: 1.15;
                   text-align: center;
                   letter-spacing: -0.01em;
@@ -390,7 +435,7 @@ export function MobileFooter() {
                   overflow: hidden;
                   text-overflow: ellipsis;
                   white-space: nowrap;
-                  padding: 0 2px;
+                  padding: 0 4px;
                 }
                 .bento-btn .bento-plus {
                   color: #e2e8f0;
@@ -408,211 +453,182 @@ export function MobileFooter() {
                 }
               `}</style>
 
-              {/* 1. INICIO (x0.8 -> span 5) */}
+              {/* FILA 1: INICIO (span 6) & CONFIGURACIÓN (span 6) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[0]
-                const isActive = location.pathname === item.path
+                const color = '#06b6d4'
+                const isActive = location.pathname === '/'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 5', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.03s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-inicio" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.03s' }}
+                    onClick={() => handleNavClick('/')}>
+                    <LayoutGrid className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Inicio</span>
                   </button>
                 )
               })()}
 
-              {/* 2. EXPEDIENTES (x1.2 -> span 7) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/expedientes')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[1]
-                const isActive = location.pathname === item.path
+                const color = '#d97706'
+                const isActive = location.pathname === '/configuracion'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 7', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromTopRight', animationDelay: '0.05s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-configuracion" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.05s' }}
+                    onClick={() => handleNavClick('/configuracion')}>
+                    <Settings className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Configuración</span>
                   </button>
                 )
               })()}
 
-              {/* 3. CITAS (x0.7 -> span 4) */}
+              {/* FILA 2: CLIENTES (span 4) & CITAS (span 4) & TALLER (span 4) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/citas')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[3]
-                const isActive = location.pathname === item.path
+                const color = '#2563eb'
+                const isActive = location.pathname === '/clientes'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                  <button key="bento-clientes" className={`bento-btn ${isActive ? 'active-page' : ''}`}
                     style={{ gridColumn: 'span 4', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.08s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                    onClick={() => handleNavClick('/clientes')}>
+                    <Users className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Clientes</span>
                   </button>
                 )
               })()}
 
-              {/* 4. REPARACIONES (x1.3 -> span 8) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/reparaciones')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[5]
-                const isActive = location.pathname === item.path
+                const color = '#b45309'
+                const isActive = location.pathname === '/citas'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 8', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.11s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-citas" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 4', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromTop', animationDelay: '0.10s' }}
+                    onClick={() => handleNavClick('/citas')}>
+                    <Calendar className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Citas</span>
                   </button>
                 )
               })()}
 
-              {/* 5. USUARIOS (x0.9 -> span 5) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/usuarios')
-                if (!item || (item.permiso && !can(item.permiso))) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[10]
-                const isActive = location.pathname === item.path
+                const color = '#e11d48'
+                const isActive = location.pathname === '/reparaciones'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 5', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.13s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-taller" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 4', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.12s' }}
+                    onClick={() => handleNavClick('/reparaciones')}>
+                    <Wrench className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>TALLER</span>
                   </button>
                 )
               })()}
 
-              {/* 6. FACTURACIÓN (x1.1 -> span 7) */}
+              {/* FILA 3: FACTURAS RECIBIDAS (span 6) & FACTURAS EMITIDAS (span 6) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/facturas')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[6]
-                const isActive = location.pathname === item.path
+                const color = '#c2410c'
+                const isActive = location.pathname === '/facturas-recibidas' || (location.pathname === '/facturas' && (location.state as any)?.tab === 'recibidas')
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 7', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.16s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-facturas-recibidas" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.15s' }}
+                    onClick={() => handleNavClick('/facturas', { tab: 'recibidas' })}>
+                    <FileText className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span title="Facturas Recibidas">Facturas Recibidas</span>
                   </button>
                 )
               })()}
 
-              {/* 7. BALANCES & PROVEEDORES (span 5 / span 7) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/balances')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[7]
-                const isActive = location.pathname === item.path
+                const color = '#d97706'
+                const isActive = location.pathname === '/facturas' && (location.state as any)?.tab !== 'recibidas'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 5', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.19s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-facturas-emitidas" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.17s' }}
+                    onClick={() => handleNavClick('/facturas', { tab: 'emitidas' })}>
+                    <FileCheck className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span title="Facturas Emitidas">Facturas Emitidas</span>
                   </button>
                 )
               })()}
 
-              {/* 8. PROVEEDORES */}
+              {/* FILA 4: PROVEEDORES (span 6) & BALANCES (span 6) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/proveedores')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[8]
-                const isActive = location.pathname === item.path
+                const color = '#6366f1'
+                const isActive = location.pathname === '/proveedores'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 7', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.21s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-proveedores" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.20s' }}
+                    onClick={() => handleNavClick('/proveedores')}>
+                    <Truck className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Proveedores</span>
                   </button>
                 )
               })()}
 
-              {/* 9. CLIENTES (x0.8 -> span 5) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/clientes')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[2]
-                const isActive = location.pathname === item.path
+                const color = '#10b981'
+                const isActive = location.pathname === '/balances'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 5', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.24s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-balances" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.22s' }}
+                    onClick={() => handleNavClick('/balances')}>
+                    <Scale className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Balances</span>
                   </button>
                 )
               })()}
 
-              {/* 10. INCIDENCIAS (x1.2 -> span 7) */}
+              {/* FILA 5: INCIDENCIAS (span 6) & PRESUPUESTOS (span 6) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/incidencias')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[9]
-                const isActive = location.pathname === item.path
+                const color = '#0d9488'
+                const isActive = location.pathname === '/incidencias'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 7', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.27s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span>{item.label}</span>
+                  <button key="bento-incidencias" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.25s' }}
+                    onClick={() => handleNavClick('/incidencias')}>
+                    <AlertTriangle className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Incidencias</span>
                   </button>
                 )
               })()}
 
-              {/* 11. PRESUPUESTOS (span 6 - 2px padding interior exacto) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/presupuestos')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[4]
-                const isActive = location.pathname === item.path
+                const color = '#0891b2'
+                const isActive = location.pathname === '/presupuestos'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 6', padding: '4px 2px', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.29s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span style={{ padding: '0 2px' }}>{item.label}</span>
+                  <button key="bento-presupuestos" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.27s' }}
+                    onClick={() => handleNavClick('/presupuestos')}>
+                    <FileText className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Presupuestos</span>
                   </button>
                 )
               })()}
 
-              {/* 12. CONFIGURACIÓN (span 6 - 2px padding interior exacto) */}
+              {/* FILA 6: SOLICITUDES (span 6) & EXPEDIENTES (span 6) */}
               {(() => {
-                const item = NAV_ITEMS.find(n => n.path === '/configuracion')
-                if (!item) return null
-                const Icon = item.icon
-                const color = MENU_COLORS[11]
-                const isActive = location.pathname === item.path
+                const color = '#8b5cf6'
+                const isActive = location.pathname === '/solicitudes'
                 return (
-                  <button key={item.path} className={`bento-btn ${isActive ? 'active-page' : ''}`}
-                    style={{ gridColumn: 'span 6', padding: '4px 2px', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.32s' }}
-                    onClick={() => handleNavClick(item.path)}>
-                    <Icon className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
-                    <span style={{ padding: '0 2px' }}>{item.label}</span>
+                  <button key="bento-solicitudes" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromLeft', animationDelay: '0.30s' }}
+                    onClick={() => handleNavClick('/solicitudes')}>
+                    <Inbox className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Solicitudes</span>
                   </button>
                 )
               })()}
 
-              {/* 13. + PRESUPUESTO */}
+              {(() => {
+                const color = '#a855f7'
+                const isActive = location.pathname === '/expedientes'
+                return (
+                  <button key="bento-expedientes" className={`bento-btn ${isActive ? 'active-page' : ''}`}
+                    style={{ gridColumn: 'span 6', backgroundColor: `${color}4D`, borderColor: color, animationName: 'flyFromRight', animationDelay: '0.32s' }}
+                    onClick={() => handleNavClick('/expedientes')}>
+                    <FolderOpen className="w-6 h-6 shrink-0" style={{ color }} strokeWidth={1.8} />
+                    <span>Expedientes</span>
+                  </button>
+                )
+              })()}
+
+              {/* FILA 7: + PRESUPUESTO (span 6) & + CLIENTE (span 6) */}
               {(() => {
                 const color = '#06b6d4'
                 return (
@@ -625,7 +641,6 @@ export function MobileFooter() {
                 )
               })()}
 
-              {/* 14. + CLIENTE */}
               {(() => {
                 const color = '#10b981'
                 return (

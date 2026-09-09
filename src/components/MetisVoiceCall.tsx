@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Radio, Mic, MicOff, Volume2, Loader2, Sparkles, PhoneOff } from 'lucide-react';
+import { Radio, Mic, Volume2, Loader2, Sparkles, PhoneOff } from 'lucide-react';
 import { processMetisMessage } from '../lib/metisAiEngine';
 import { transcribeAudio } from '../services/aiProviderService';
-import { speakSpanish, stopSpanishSpeech, initSpanishVoice } from '../services/voiceService';
+import { speakSpanish, stopSpanishSpeech } from '../services/voiceService';
+import { metisAmbientSound } from '../lib/metisAmbientSound';
 
 export const MetisVoiceCall: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
@@ -22,6 +23,26 @@ export const MetisVoiceCall: React.FC = () => {
     isActiveRef.current = isActive;
   }, [isActive]);
 
+  // Emitir evento global de estado de voz para sincronizar la línea de escáner KITT
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('metis-voice-status', {
+      detail: { isActive, status, showModal }
+    }));
+  }, [isActive, status, showModal]);
+
+  // Gestión inteligente del sonido ambiental durante la espera en la llamada
+  useEffect(() => {
+    if (isActive) {
+      if (status === 'listening' || status === 'idle') {
+        metisAmbientSound.start();
+      } else {
+        metisAmbientSound.pause();
+      }
+    } else {
+      metisAmbientSound.stop();
+    }
+  }, [isActive, status]);
+
   const stopAudioTracks = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
@@ -38,8 +59,9 @@ export const MetisVoiceCall: React.FC = () => {
   const stopCall = useCallback(() => {
     setIsActive(false);
     setStatus('idle');
+    metisAmbientSound.stop();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.onstop = null; // Prevent triggering transcription
+      mediaRecorderRef.current.onstop = null;
       mediaRecorderRef.current.stop();
     }
     stopSpanishSpeech();
@@ -55,10 +77,10 @@ export const MetisVoiceCall: React.FC = () => {
   const processAudioBlob = async (blob: Blob) => {
     if (!isActiveRef.current) return;
     setStatus('processing');
+    metisAmbientSound.pause();
     try {
       const transcript = await transcribeAudio(blob);
       if (!transcript || transcript.length < 2) {
-        // Ignorar ruidos o silencios cortos
         if (isActiveRef.current) startListening();
         return;
       }
@@ -119,9 +141,10 @@ export const MetisVoiceCall: React.FC = () => {
           const sum = dataArray.reduce((a, b) => a + b, 0);
           const avg = sum / dataArray.length;
 
-          // Umbral de ruido bajo para taller (ajustable)
+          // Si el usuario habla, pausar sonido ambiental
           if (avg > 15) {
             isSpeaking = true;
+            metisAmbientSound.pause();
             if (silenceTimerRef.current) {
               clearTimeout(silenceTimerRef.current);
               silenceTimerRef.current = null;
@@ -134,6 +157,9 @@ export const MetisVoiceCall: React.FC = () => {
                   mediaRecorderRef.current.stop();
                 }
               }, 2500);
+            } else if (!isSpeaking) {
+              // En silencio de espera: reanudar sonido ambiental
+              metisAmbientSound.start();
             }
           }
         }, 100);
@@ -141,10 +167,12 @@ export const MetisVoiceCall: React.FC = () => {
 
       mediaRecorder.start();
       setStatus('listening');
+      metisAmbientSound.start();
 
     } catch (e: any) {
       console.error("Error accediendo al micrófono (MediaRecorder)", e);
       setStatus('idle');
+      metisAmbientSound.stop();
       const isSecure = window.isSecureContext || window.location.hostname === 'localhost' || window.location.protocol === 'https:';
       if (!isSecure) {
         alert('Para usar el micrófono en el móvil, el navegador requiere HTTPS (Contexto Seguro). Usa "npm run dev:mobile" (con HTTPS) o accede por https://');
@@ -157,6 +185,7 @@ export const MetisVoiceCall: React.FC = () => {
 
   const speakResponse = (text: string) => {
     setStatus('speaking');
+    metisAmbientSound.pause();
 
     const onTTSFinished = () => {
       if (isActiveRef.current) {
@@ -183,45 +212,34 @@ export const MetisVoiceCall: React.FC = () => {
       setShowModal(true);
       setStatus('listening');
       stopSpanishSpeech();
-      // Inicializar micrófono y MediaRecorder
       setTimeout(() => startListening(), 100);
     }
   };
 
   return (
     <>
+      {/* Botón estático sin animaciones continuas */}
       <button
         onClick={toggleCall}
-        className="w-16 h-16 rounded-full bg-transparent border border-white/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 flex-shrink-0 relative group overflow-hidden"
-        title="METIS Conversación Continua"
-        aria-label="METIS Conversación Continua"
+        className={`w-16 h-16 rounded-full bg-transparent border flex items-center justify-center transition-all flex-shrink-0 relative group overflow-hidden ${
+          isActive 
+            ? 'border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.9),inset_0_0_6px_rgba(239,68,68,0.6)]' 
+            : 'border-white/40 shadow-[0_0_10px_rgba(255,255,255,0.2)]'
+        }`}
+        title="METIS Conversación Bidireccional"
+        aria-label="METIS Conversación Bidireccional"
       >
-        {/* Animación del cometa arcoíris: cabeza más ancha, mayor brillo y glow sutil en cabeza */}
-        <div 
-          className={`absolute inset-0 rounded-full animate-[spin_1.4s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0%,transparent_35%,rgba(239,68,68,0.15)_45%,rgba(234,179,8,0.35)_58%,rgba(34,197,94,0.6)_70%,rgba(59,130,246,0.85)_82%,rgba(168,85,247,1)_94%,#ffffff_100%)] ${
-            isActive ? 'opacity-100 drop-shadow-[0_0_8px_rgba(168,85,247,0.9)]' : 'opacity-80 group-hover:opacity-100 drop-shadow-[0_0_5px_rgba(255,255,255,0.7)] transition-all'
-          }`}
-          style={{ 
-            WebkitMask: 'radial-gradient(circle, transparent 58%, black 60%)',
-            mask: 'radial-gradient(circle, transparent 58%, black 60%)' 
-          }}
-        ></div>
-
-        {/* Nuevo icono representativo: Radio / Frecuencia de voz en vivo con trazo de 1px y color gris claro #d3d3d3 */}
         <div className="relative z-10 flex items-center justify-center w-full h-full bg-transparent">
           {isActive ? (
-            <Radio className="w-7 h-7 text-red-400 animate-pulse" strokeWidth={1} />
+            <Radio className="w-7 h-7 text-red-500" strokeWidth={1.5} />
           ) : (
             <Radio className="w-7 h-7 text-[#d3d3d3] group-hover:text-white transition-colors" strokeWidth={1} />
           )}
         </div>
 
-        {/* Ping de estado activo */}
-        {isActive && status === 'listening' && (
-          <span className="absolute top-1 right-1 flex h-3 w-3 z-20">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-          </span>
+        {/* Indicador de estado activo estático */}
+        {isActive && (
+          <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border border-white" />
         )}
       </button>
 
@@ -231,25 +249,25 @@ export const MetisVoiceCall: React.FC = () => {
           <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
             
             {/* Efectos de fondo */}
-            <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent pointer-events-none"></div>
             
             <div className="relative z-10 flex flex-col items-center">
-              <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 ${
-                status === 'listening' ? 'bg-cyan-500/20 text-cyan-400 animate-pulse' : 
-                status === 'speaking' ? 'bg-emerald-500/20 text-emerald-400' : 
-                status === 'processing' ? 'bg-amber-500/20 text-amber-400' : 
-                'bg-slate-800 text-slate-500'
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-colors ${
+                status === 'listening' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 
+                status === 'speaking' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 
+                status === 'processing' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 
+                'bg-slate-800 text-slate-500 border border-slate-700'
               }`}>
-                {status === 'listening' ? <Mic className="w-12 h-12" /> : 
-                 status === 'speaking' ? <Volume2 className="w-12 h-12 animate-bounce" /> :
-                 status === 'processing' ? <Loader2 className="w-12 h-12 animate-spin" /> :
+                {status === 'listening' ? <Mic className="w-12 h-12 text-red-400" /> : 
+                 status === 'speaking' ? <Volume2 className="w-12 h-12 text-emerald-400" /> :
+                 status === 'processing' ? <Loader2 className="w-12 h-12 text-amber-400 animate-spin" /> :
                  <Sparkles className="w-12 h-12" />}
               </div>
 
               <h3 className="text-2xl font-black text-white mb-2">METIS AI</h3>
               
-              <p className="text-slate-400 font-medium mb-12 h-6 flex items-center justify-center">
-                {status === 'listening' ? 'Escuchando al taller...' : 
+              <p className="text-slate-400 font-medium mb-12 h-6 flex items-center justify-center text-center text-sm">
+                {status === 'listening' ? 'Escuchando al taller (K.I.T.T. Activo)...' : 
                  status === 'speaking' ? 'METIS está hablando...' : 
                  status === 'processing' ? 'Procesando consulta...' : 
                  'Conectando...'}
@@ -257,7 +275,8 @@ export const MetisVoiceCall: React.FC = () => {
 
               <button 
                 onClick={toggleCall}
-                className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-500/30 transition-all hover:scale-105"
+                className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-500/30 transition-all active:scale-95"
+                title="Finalizar llamada"
               >
                 <PhoneOff className="w-8 h-8" />
               </button>

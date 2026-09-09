@@ -21,6 +21,7 @@ import { FacturasPage } from './pages/FacturasPage'
 import { BalancesPage } from './pages/BalancesPage'
 import { ConfiguracionPage } from './pages/ConfiguracionPage'
 import { ExpedientesPage } from './pages/ExpedientesPage'
+import { SolicitudesPage } from './pages/SolicitudesPage'
 import { AsignarCitaPage } from './pages/AsignarCitaPage'
 import { NAV_ITEMS } from './lib/navigation'
 import {
@@ -233,6 +234,7 @@ function Layout() {
   // Rutas principales autorizadas para swipe lateral
   const MAIN_SWIPE_ROUTES = [
     '/',
+    '/solicitudes',
     '/expedientes',
     '/clientes',
     '/presupuestos',
@@ -380,7 +382,9 @@ function Layout() {
                   <Route path="/reparaciones" element={<ReparacionesPage />} />
                   <Route path="/abonos-parciales" element={<Navigate to="/facturas" replace />} />
                   <Route path="/facturas" element={<FacturasPage />} />
+                  <Route path="/facturas-recibidas" element={<FacturasPage />} />
                   <Route path="/balances" element={<BalancesPage />} />
+                  <Route path="/solicitudes" element={<SolicitudesPage />} />
                   <Route path="/expedientes" element={<ExpedientesPage />} />
                   <Route path="/asignar-cita" element={<AsignarCitaPage />} />
                   <Route path="/proveedores" element={<ProveedoresPage />} />
@@ -551,8 +555,14 @@ export default function App() {
       localStorage.setItem('gestarian_test_user', targetEmail)
     }
 
+    const safetyTimeout = setTimeout(() => {
+      setProfileReady(true)
+      setLicenciaValida(true)
+    }, 800)
+
     cargarPerfil(targetEmail)
       .then(() => {
+        clearTimeout(safetyTimeout)
         const perfil = getPerfil()
         if (perfil?.esDeveloper || perfil?.rol?.toUpperCase().includes('JEFE') || perfil?.rol?.toUpperCase().includes('ADMIN')) {
           setLicenciaValida(true)
@@ -562,6 +572,7 @@ export default function App() {
         setProfileReady(true)
       })
       .catch((err: any) => {
+        clearTimeout(safetyTimeout)
         console.error('Error al cargar perfil:', err)
         const perfil = getPerfil()
         if (perfil?.esDeveloper || perfil?.rol?.toUpperCase().includes('JEFE') || perfil?.rol?.toUpperCase().includes('ADMIN')) {
@@ -586,12 +597,12 @@ export default function App() {
 
     const fadeOutTimer = setTimeout(() => {
       setIntroState('fadeOut')
-    }, 1800)
+    }, 1200)
 
     const removeTimer = setTimeout(() => {
       sessionStorage.setItem('gestarian_intro_shown', 'true')
       setShowIntro(false)
-    }, 2300)
+    }, 1600)
 
     return () => {
       clearTimeout(growTimer)
@@ -605,9 +616,12 @@ export default function App() {
       <ThemeProvider>
         <UIStateProvider>
           <ToastProvider>
-            {showIntro ? (
+            {/* Animación de Intro renderizada como capa flotante superior sin bloquear el montaje de la app */}
+            {showIntro && (
               <IntroAnimation showIntro={showIntro} introState={introState} />
-            ) : showAccountPicker ? (
+            )}
+
+            {showAccountPicker ? (
               <SelectorCuentasModal
                 cuentas={savedAccounts}
                 cuentaActual={localStorage.getItem('gestarian_test_user') || undefined}
@@ -618,10 +632,6 @@ export default function App() {
                 }}
                 onEliminarCuenta={handleEliminarCuenta}
               />
-            ) : !profileReady ? (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <p className="text-cyan-400 font-bold">Iniciando GESTARIAN...</p>
-              </div>
             ) : (
               <BrowserRouter>
                 <Routes>

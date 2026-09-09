@@ -5,8 +5,9 @@ import type { Configuracion, ThemePreset, TextColorValue, TextColorSettings } fr
 import { PageHeader, Card } from '../components/UI'
 import { useTheme, DEFAULT_THEME_SETTINGS } from '../lib/theme'
 import { Chip, Stack, Switch } from '@mui/material'
-import { Save, Building2, Mail, Palette, Sparkles, History, ArrowLeft, Eye, EyeOff, CheckCircle2, XCircle, Bot, FileSearch, Car, HardDrive, RefreshCw, UserCog, ShieldCheck, Image as ImageIcon, Upload, Trash2, Layers } from 'lucide-react'
+import { Save, Building2, Mail, Palette, Sparkles, History, ArrowLeft, Eye, EyeOff, CheckCircle2, XCircle, Bot, FileSearch, Car, HardDrive, RefreshCw, UserCog, ShieldCheck, Image as ImageIcon, Upload, Trash2, Layers, Key } from 'lucide-react'
 import { CommunicationHistoryModal } from '../components/CommunicationHistoryModal'
+import { ApiKeysConfigModal } from '../components/ApiKeysConfigModal'
 
 // Servicios centralizados
 import { getAiConfig, getFallbackConfig, testAiConnection } from '../services/aiProviderService'
@@ -23,6 +24,7 @@ export function ConfiguracionPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showApiKeysModal, setShowApiKeysModal] = useState(false)
   const [mostrarMenuModos, setMostrarMenuModos] = useState(false)
   const [mostrarMenuCambiarCuenta, setMostrarMenuCambiarCuenta] = useState(false)
   const [listaCuentasGuardadas, setListaCuentasGuardadas] = useState<Array<{ email: string; nombre?: string }>>([])
@@ -679,6 +681,49 @@ export function ConfiguracionPage() {
         </div>
       </div>
 
+      {/* BANNER PROMINENTE: CENTRO DE CLAVES, APIS Y ENLACES (RESEND, SUPABASE, GITHUB, PLATE RECOGNIZER, GEMINI) */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 border-2 border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.25)] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-400 shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            <Key className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base font-black text-white">Centro de Claves, APIs y Enlaces de Conexión</h3>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 uppercase tracking-wider">
+                Configuración Rápida
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 mt-1">
+              Rellena y prueba todas las claves necesarias en un solo formulario: <strong>Resend, Supabase, GitHub, Plate Recognizer y Gemini</strong>.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowApiKeysModal(true)}
+          className="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-black uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2 shrink-0 transition-transform active:scale-95 cursor-pointer"
+        >
+          <Key className="w-4 h-4" />
+          Abrir Formulario de Claves
+        </button>
+      </div>
+
+      {/* Modal interactivo de Claves y Enlaces */}
+      <ApiKeysConfigModal
+        isOpen={showApiKeysModal}
+        onClose={() => setShowApiKeysModal(false)}
+        onSaved={() => {
+          // Recargar las claves del estado local de la página
+          const savedGemini = localStorage.getItem('gestarian_gemini_api_key')
+          if (savedGemini) setAiApiKey(savedGemini)
+          const savedPlate = localStorage.getItem('gestarian_plate_recognizer_key')
+          if (savedPlate) setPlateApiKey(savedPlate)
+          const savedFallback = localStorage.getItem('gestarian_fallback_api_key')
+          if (savedFallback) setFallbackApiKey(savedFallback)
+        }}
+      />
+
       {/* CONTROL MAESTRO DE DESARROLLADOR Y ACCESO A MODOS */}
       {esDev && (
         <div className="space-y-3">
@@ -993,9 +1038,19 @@ export function ConfiguracionPage() {
                 <button 
                   type="button" 
                   onClick={handleTestAi}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition-colors"
+                  disabled={aiStatus === 'testing'}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition-colors disabled:opacity-50"
                 >
-                  Probar conexión
+                  {aiStatus === 'testing' ? 'Probando...' : 'Probar conexión'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={handleTestFallback}
+                  disabled={fallbackStatus === 'testing'}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 transition-colors disabled:opacity-50"
+                  title="Probar conexión con la IA de Respaldo / Fallback"
+                >
+                  {fallbackStatus === 'testing' ? 'Probando Fallback...' : 'Test Fallback'}
                 </button>
                 <button 
                   type="button" 

@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, ClipboardList, Calendar, Wrench,
   FileText, Scale, Truck, AlertTriangle,
-  UserCog, Settings, FolderOpen, Coins
+  UserCog, Settings, FolderOpen, Coins, Inbox
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -15,6 +15,7 @@ export interface NavItem {
 // Full menu (hamburger / sidebar)
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Inicio',              path: '/',                   icon: LayoutDashboard, permiso: null },
+  { label: 'Solicitudes',         path: '/solicitudes',        icon: Inbox,           permiso: null },
   { label: 'Expedientes',         path: '/expedientes',        icon: FolderOpen,      permiso: null },
   { label: 'Clientes',            path: '/clientes',            icon: Users,           permiso: null },
   { label: 'Presupuestos',        path: '/presupuestos',        icon: ClipboardList,   permiso: null },

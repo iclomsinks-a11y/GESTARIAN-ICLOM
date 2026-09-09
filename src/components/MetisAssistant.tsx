@@ -89,6 +89,11 @@ export function MetisAssistant() {
     }
   }, [supported, start, reset, speak])
 
+  // Notificar al sistema global y a la barra de escáner KITT el estado de apertura de METIS
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('metis-assistant-status', { detail: { open } }))
+  }, [open])
+
   // Lógica del calendario fiscal automático
   useEffect(() => {
     let checking = false

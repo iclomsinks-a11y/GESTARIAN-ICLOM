@@ -31,9 +31,17 @@ export function FacturasPage() {
     facturaNumero?: string;
     presupuestoId?: string;
     mode?: string;
+    tab?: 'emitidas' | 'recibidas';
   } | null
 
-  const [activeTab, setActiveTab] = useState<'emitidas' | 'recibidas'>('emitidas')
+  const [activeTab, setActiveTab] = useState<'emitidas' | 'recibidas'>(navState?.tab || 'emitidas')
+
+  useEffect(() => {
+    if (navState?.tab) {
+      setActiveTab(navState.tab)
+      setSelectedFactura(null)
+    }
+  }, [navState?.tab])
   const [facturas, setFacturas] = useState<Factura[]>([])
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([])
