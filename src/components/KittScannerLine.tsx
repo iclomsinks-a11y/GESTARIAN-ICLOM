@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 export type KittScannerMode = 'off' | 'metis-ai' | 'bidirectional'
 
@@ -8,31 +8,6 @@ interface KittScannerLineProps {
 }
 
 export const KittScannerLine: React.FC<KittScannerLineProps> = ({ mode, className = '' }) => {
-  const [activeLed, setActiveLed] = useState<number>(0)
-  const [direction, setDirection] = useState<1 | -1>(1)
-  const totalLeds = 16
-
-  // Animación paso a paso de los LEDs cuadrados estilo KITT para el modo bidireccional
-  useEffect(() => {
-    if (mode !== 'bidirectional') return
-
-    const interval = setInterval(() => {
-      setActiveLed((prev) => {
-        let next = prev + direction
-        if (next >= totalLeds - 1) {
-          setDirection(-1)
-          next = totalLeds - 1
-        } else if (next <= 0) {
-          setDirection(1)
-          next = 0
-        }
-        return next
-      })
-    }, 70) // Velocidad clásica del coche fantástico KITT
-
-    return () => clearInterval(interval)
-  }, [mode, direction])
-
   if (mode === 'off') return null
 
   return (
@@ -41,95 +16,126 @@ export const KittScannerLine: React.FC<KittScannerLineProps> = ({ mode, classNam
       aria-hidden="true"
     >
       <style>{`
-        @keyframes sweepTurquoise {
+        @keyframes kittCometRed {
           0% {
             left: 0%;
             transform: translateX(0%);
+            background: linear-gradient(to right, transparent 0%, rgba(220, 38, 38, 0.04) 15%, rgba(239, 68, 68, 0.3) 40%, rgba(239, 68, 68, 0.75) 75%, #ff4d4d 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #ef4444, 4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #ef4444);
+          }
+          49.9% {
+            left: 100%;
+            transform: translateX(-100%);
+            background: linear-gradient(to right, transparent 0%, rgba(220, 38, 38, 0.04) 15%, rgba(239, 68, 68, 0.3) 40%, rgba(239, 68, 68, 0.75) 75%, #ff4d4d 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #ef4444, 4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #ef4444);
           }
           50% {
             left: 100%;
             transform: translateX(-100%);
+            background: linear-gradient(to left, transparent 0%, rgba(220, 38, 38, 0.04) 15%, rgba(239, 68, 68, 0.3) 40%, rgba(239, 68, 68, 0.75) 75%, #ff4d4d 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #ef4444, -4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #ef4444);
+          }
+          99.9% {
+            left: 0%;
+            transform: translateX(0%);
+            background: linear-gradient(to left, transparent 0%, rgba(220, 38, 38, 0.04) 15%, rgba(239, 68, 68, 0.3) 40%, rgba(239, 68, 68, 0.75) 75%, #ff4d4d 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #ef4444, -4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #ef4444);
           }
           100% {
             left: 0%;
             transform: translateX(0%);
+            background: linear-gradient(to right, transparent 0%, rgba(220, 38, 38, 0.04) 15%, rgba(239, 68, 68, 0.3) 40%, rgba(239, 68, 68, 0.75) 75%, #ff4d4d 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #ef4444, 4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #ef4444);
+          }
+        }
+
+        @keyframes kittCometTurquoise {
+          0% {
+            left: 0%;
+            transform: translateX(0%);
+            background: linear-gradient(to right, transparent 0%, rgba(64, 224, 208, 0.04) 15%, rgba(6, 182, 212, 0.3) 40%, rgba(6, 182, 212, 0.75) 75%, #38bdf8 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #40e0d0, 4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #40e0d0);
+          }
+          49.9% {
+            left: 100%;
+            transform: translateX(-100%);
+            background: linear-gradient(to right, transparent 0%, rgba(64, 224, 208, 0.04) 15%, rgba(6, 182, 212, 0.3) 40%, rgba(6, 182, 212, 0.75) 75%, #38bdf8 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #40e0d0, 4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #40e0d0);
+          }
+          50% {
+            left: 100%;
+            transform: translateX(-100%);
+            background: linear-gradient(to left, transparent 0%, rgba(64, 224, 208, 0.04) 15%, rgba(6, 182, 212, 0.3) 40%, rgba(6, 182, 212, 0.75) 75%, #38bdf8 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #40e0d0, -4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #40e0d0);
+          }
+          99.9% {
+            left: 0%;
+            transform: translateX(0%);
+            background: linear-gradient(to left, transparent 0%, rgba(64, 224, 208, 0.04) 15%, rgba(6, 182, 212, 0.3) 40%, rgba(6, 182, 212, 0.75) 75%, #38bdf8 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #40e0d0, -4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #40e0d0);
+          }
+          100% {
+            left: 0%;
+            transform: translateX(0%);
+            background: linear-gradient(to right, transparent 0%, rgba(64, 224, 208, 0.04) 15%, rgba(6, 182, 212, 0.3) 40%, rgba(6, 182, 212, 0.75) 75%, #38bdf8 90%, #ffffff 100%);
+            box-shadow: 0 0 18px #40e0d0, 4px 0 12px #ffffff;
+            filter: drop-shadow(0 0 8px #40e0d0);
           }
         }
       `}</style>
 
-      {/* Carcasa estilizada del escáner bajo el footer */}
-      <div className="w-full h-3.5 bg-black/90 rounded-md border border-white/20 shadow-[0_0_12px_rgba(0,0,0,0.8),inset_0_0_8px_rgba(0,0,0,0.9)] p-0.5 flex items-center overflow-hidden relative backdrop-blur-md">
+      {/* Carcasa estilizada del escáner bajo el footer con grille KITT */}
+      <div className="w-full h-4 bg-black/95 rounded-md border border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.9),inset_0_0_8px_rgba(0,0,0,0.95)] p-0.5 flex items-center overflow-hidden relative backdrop-blur-md">
         
+        {/* Grille frontal de segmentos tipo KITT */}
+        <div className="absolute inset-0 flex justify-between pointer-events-none z-10 px-0.5">
+          {Array.from({ length: 24 }).map((_, i) => (
+            <div key={i} className="w-[1.5px] h-full bg-black/50" />
+          ))}
+        </div>
+
         {/* ============================================================ */}
-        {/* MODO 1: METIS AI (Línea Turquesa con centro claro y rastro)   */}
+        {/* MODO 1: METIS AI (Cometa Turquesa / Celeste)                 */}
         {/* ============================================================ */}
         {mode === 'metis-ai' && (
           <div className="relative w-full h-full overflow-hidden">
-            {/* Resplandor ambiental de fondo turquesa */}
+            {/* Resplandor ambiental de fondo */}
             <div className="absolute inset-0 bg-[#40e0d0]/10" />
 
-            {/* Cabeza del escáner turquesa con centro más claro y rastro difuminado */}
+            {/* Haz tipo cometa: cabeza brillante al frente y rastro de luz difuminado */}
             <div
-              className="absolute top-0 bottom-0 w-24 rounded-full"
+              className="absolute top-0 bottom-0 w-[38%] rounded-full"
               style={{
-                animation: 'sweepTurquoise 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
-                background: 'linear-gradient(90deg, transparent 0%, rgba(64,224,208,0.4) 30%, #ffffff 50%, rgba(64,224,208,0.4) 70%, transparent 100%)',
-                boxShadow: '0 0 16px #40e0d0, 0 0 8px #ffffff',
-                filter: 'drop-shadow(0 0 6px #40e0d0)',
+                animation: 'kittCometTurquoise 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
               }}
             />
           </div>
         )}
 
         {/* ============================================================ */}
-        {/* MODO 2: CONVERSACIÓN BIDIRECCIONAL (KITT El Coche Fantástico) */}
-        {/* Puntos / Bloques cuadrados de color rojo con decaimiento      */}
+        {/* MODO 2: CONVERSACIÓN BIDIRECCIONAL (Cometa Rojo K.I.T.T.)     */}
         {/* ============================================================ */}
         {mode === 'bidirectional' && (
-          <div className="w-full h-full flex items-center justify-between gap-1 px-1">
-            {Array.from({ length: totalLeds }).map((_, idx) => {
-              const distance = Math.abs(idx - activeLed)
-              
-              // Intensidad y decaimiento del fósforo rojo
-              let opacity = 0.12
-              let bg = '#3f0000'
-              let shadow = 'none'
+          <div className="relative w-full h-full overflow-hidden">
+            {/* Resplandor ambiental de fondo rojo */}
+            <div className="absolute inset-0 bg-red-950/30" />
 
-              if (distance === 0) {
-                // Cabeza activa central del KITT (punto cuadrado brillante con núcleo naranja-blanco)
-                opacity = 1
-                bg = '#ffffff'
-                shadow = '0 0 12px #ff0000, 0 0 20px #ff2222, 0 0 4px #ffedd5'
-              } else if (distance === 1) {
-                // Primer punto adyacente (rojo vivo intenso)
-                opacity = 0.9
-                bg = '#ff1a1a'
-                shadow = '0 0 10px #ff0000, 0 0 15px #dc2626'
-              } else if (distance === 2) {
-                // Segundo punto adyacente (rojo medio)
-                opacity = 0.6
-                bg = '#b91c1c'
-                shadow = '0 0 6px #ef4444'
-              } else if (distance === 3) {
-                // Estela tenue de fósforo
-                opacity = 0.3
-                bg = '#7f1d1d'
-                shadow = '0 0 3px #991b1b'
-              }
-
-              return (
-                <div
-                  key={idx}
-                  className="flex-1 h-2 rounded-[2px] transition-all duration-75"
-                  style={{
-                    backgroundColor: bg,
-                    opacity: opacity,
-                    boxShadow: shadow,
-                    border: distance <= 1 ? '1px solid #ffaaaa' : '1px solid rgba(255,0,0,0.15)',
-                  }}
-                />
-              )
-            })}
+            {/* Haz tipo cometa: cabeza blanca/roja al frente y rastro de luz difuminado */}
+            <div
+              className="absolute top-0 bottom-0 w-[38%] rounded-full"
+              style={{
+                animation: 'kittCometRed 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
+              }}
+            />
           </div>
         )}
       </div>

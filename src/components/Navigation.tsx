@@ -274,7 +274,7 @@ export function MobileFooter() {
   return (
     <>
       {location.pathname !== '/' && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-black/90 via-black/[0.65] to-transparent z-40 pointer-events-none" />
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-black/90 via-black/[0.65] to-transparent z-30 pointer-events-none" />
       )}
       
       {/* Contenedor del footer: iconos + línea del coche fantástico justo debajo */}

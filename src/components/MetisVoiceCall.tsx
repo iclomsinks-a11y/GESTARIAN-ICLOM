@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Radio, Mic, Volume2, Loader2, Sparkles, PhoneOff } from 'lucide-react';
+import { Radio, Mic, Volume2, Loader2, Sparkles, PhoneOff, X } from 'lucide-react';
 import { processMetisMessage } from '../lib/metisAiEngine';
 import { transcribeAudio } from '../services/aiProviderService';
 import { speakSpanish, stopSpanishSpeech } from '../services/voiceService';
@@ -245,11 +245,20 @@ export const MetisVoiceCall: React.FC = () => {
 
       {/* Modal flotante al estilo llamada */}
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 pb-28 sm:pb-32 pointer-events-none">
+          <div className="pointer-events-auto w-[92%] max-w-sm bg-black/10 backdrop-blur-xl border border-[#40e0d0] shadow-[0_0_20px_rgba(64,224,208,0.45),inset_0_0_15px_rgba(64,224,208,0.12)] rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden gestarian-metis-card">
             
+            {/* Botón cerrar */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-3 right-3 text-slate-400 hover:text-white p-1.5 rounded-lg transition-colors z-20"
+              title="Cerrar ventana"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
             {/* Efectos de fondo */}
-            <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-[#40e0d0]/10 via-transparent to-red-500/10 pointer-events-none"></div>
             
             <div className="relative z-10 flex flex-col items-center">
               <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-colors ${

@@ -294,13 +294,14 @@ export function MetisAssistant() {
 
       {/* Main METIS drawer / panel */}
       {open && (
-        <div className="fixed bottom-0 right-0 sm:bottom-4 sm:right-4 z-50 w-full sm:w-[420px] h-[80vh] sm:h-[560px] bg-bg-900/95 backdrop-blur-xl border border-bg-700 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col gestarian-metis-panel">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-bg-700 bg-bg-900/95">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-cyan-400" />
-              </div>
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 pb-28 sm:pb-32 pointer-events-none">
+          <div className="pointer-events-auto w-[94%] max-w-sm sm:max-w-md h-[70vh] max-h-[520px] bg-black/10 backdrop-blur-xl border border-[#40e0d0] shadow-[0_0_20px_rgba(64,224,208,0.45),inset_0_0_15px_rgba(64,224,208,0.12)] rounded-3xl flex flex-col overflow-hidden gestarian-metis-panel">
+            {/* Header */}
+            <div className="flex items-center justify-between p-3.5 border-b border-cyan-500/30 bg-black/20 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-cyan-400" />
+                </div>
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-white text-sm">METIS IA</p>
@@ -541,24 +542,25 @@ export function MetisAssistant() {
           )}
 
           {/* Bottom input area */}
-          <div className="p-3 pr-16 border-t border-bg-700 flex gap-2 bg-bg-900/80">
+          <div className="p-3 border-t border-cyan-500/30 flex gap-2 bg-black/20 backdrop-blur-md">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage() }}
               placeholder={listening ? 'Escuchando voz...' : 'Habla o escribe tu orden a METIS...'}
-              className="flex-1 bg-bg-800 border border-bg-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+              className="flex-1 bg-black/30 border border-cyan-500/30 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[#40e0d0] focus:ring-1 focus:ring-[#40e0d0]/50"
             />
             <button
               onClick={() => handleSendMessage()}
               disabled={!input.trim()}
-              className="w-10 h-10 rounded-xl bg-cyan-500/90 hover:bg-cyan-400 text-white flex items-center justify-center disabled:opacity-40 transition-colors shrink-0"
+              className="w-10 h-10 rounded-xl bg-[#40e0d0] hover:bg-cyan-300 text-slate-950 font-bold flex items-center justify-center disabled:opacity-40 transition-colors shrink-0 shadow-[0_0_10px_rgba(64,224,208,0.5)]"
               aria-label="Enviar orden"
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
         </div>
+      </div>
       )}
     </>
   )
