@@ -49,8 +49,10 @@ export async function enviarInvitacion(
       }
     }
 
-    const origin = window.location.origin || 'http://localhost:5174'
-    const portalUrl = `${origin}/cliente/${validToken}`
+    const webDomain = (typeof window !== 'undefined' && localStorage.getItem('gestarian_web_domain')
+      ? localStorage.getItem('gestarian_web_domain')!
+      : 'https://www.gestarian.com').replace(/\/$/, '')
+    const portalUrl = `${webDomain}/cliente/${validToken}`
     const asunto = 'Invitación para seguir la reparación de tu vehículo en DM CAR'
     const cuerpo = `Hola ${cliente.nombre},\n\nTu taller te ha invitado a seguir el estado de tu vehículo en tiempo real.\n\nPuedes acceder al portal en el siguiente enlace:\n${portalUrl}\n\nGracias por confiar en nosotros.`
 
@@ -60,9 +62,14 @@ export async function enviarInvitacion(
       await enviarEmail(cliente.email, asunto, cuerpo)
     }
 
-    // 2. Canal WhatsApp (Preparado pero desactivado para pruebas)
+    // 2. Canal WhatsApp (Conexión activa con token del portal gestarian.com)
     if (canales.includes('whatsapp') && cliente.telefono) {
-      console.log(`💬 [WhatsApp preparado (desactivado)] para ${cliente.telefono}: ${portalUrl}`)
+      console.log(`💬 [WhatsApp Invitación] para ${cliente.telefono}: ${portalUrl}`)
+      const cleanPhone = cliente.telefono.replace(/[^0-9]/g, '')
+      const msg = `Hola ${cliente.nombre}, sigue el estado de la reparación de tu vehículo en tiempo real en nuestro portal: ${portalUrl}`
+      if (typeof window !== 'undefined') {
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+      }
     }
 
     // Actualizar estado en cliente_invitaciones si existe
@@ -208,8 +215,10 @@ export async function notificarModificacionCitaAlCliente({
 }): Promise<{ success: boolean; error?: string }> {
   if (!clienteEmail) return { success: true }
   try {
-    const origin = window.location.origin || 'http://localhost:5174'
-    const portalUrl = token ? `${origin}/cliente/${token}` : origin
+    const webDomain = (typeof window !== 'undefined' && localStorage.getItem('gestarian_web_domain')
+      ? localStorage.getItem('gestarian_web_domain')!
+      : 'https://www.gestarian.com').replace(/\/$/, '')
+    const portalUrl = token ? `${webDomain}/cliente/${token}` : webDomain
     const fechaFormateada = new Date(nuevaFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
     const asunto = `Propuesta de fecha/hora para la entrega de tu vehículo - DM CAR`
     const cuerpo = `Hola ${clienteNombre},\n\nEl taller te ha propuesto una nueva fecha y hora para la entrega de tu vehículo (${matricula || ''}):\n\n📅 Fecha: ${fechaFormateada}\n⏰ Hora: ${nuevaHora || '09:00'}\n\nPuedes acceder a tu portal de cliente para ACEPTAR esta fecha o PROPONER otra hora/día diferente:\n${portalUrl}\n\nGracias por confiar en DM CAR.`

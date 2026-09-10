@@ -521,8 +521,10 @@ export async function sendPresupuestoByEmail(
           token: token
         })
       }
-      const origin = window.location.origin || 'http://localhost:5174'
-      clientPortalUrl = `${origin}/cliente/${token}`
+      const webDomain = (typeof window !== 'undefined' && localStorage.getItem('gestarian_web_domain')
+        ? localStorage.getItem('gestarian_web_domain')!
+        : 'https://www.gestarian.com').replace(/\/$/, '')
+      clientPortalUrl = `${webDomain}/cliente/${token}`
     }
   } catch (e) {
     console.warn('Error resolviendo token de cliente para email:', e)

@@ -124,8 +124,10 @@ export async function enviarInvitacionCliente(
   token: string,
   telefono?: string | null
 ): Promise<{ success: boolean; url: string }> {
-  const origin = window.location.origin || 'http://localhost:5174';
-  const url = `${origin}/cliente/${token}`;
+  const webDomain = (typeof window !== 'undefined' && localStorage.getItem('gestarian_web_domain')
+    ? localStorage.getItem('gestarian_web_domain')!
+    : 'https://www.gestarian.com').replace(/\/$/, '');
+  const url = `${webDomain}/cliente/${token}`;
   
   console.log(`📲 Invitación enviada a ${email}: ${url}`);
 
