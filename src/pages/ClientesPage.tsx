@@ -917,33 +917,33 @@ export function ClientesPage() {
                                       <MatriculaBadge matricula={v.matricula} size="md" />
                                     </div>
 
-                                    {/* Iconos de acciones flotantes a la derecha (mismo tamaño 60px y separación gap-4 que los iconos superiores) */}
-                                    <div className="flex items-center gap-4 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                    {/* Iconos de acciones flotantes a la derecha (tamaño x1.5 = 90px) */}
+                                    <div className="flex items-center gap-3 sm:gap-4 shrink-0" onClick={(e) => e.stopPropagation()}>
                                       {/* Icono Añadir vehículo (coche con + adentro) */}
                                       <button
                                         onClick={() => setShowNuevoVehiculoModal(cliente.id)}
-                                        className="text-cyan-400 hover:text-cyan-300 transition-all hover:scale-110 active:scale-95 bg-transparent border-0 p-0 outline-none flex items-center justify-center drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]"
+                                        className="text-cyan-400 hover:text-cyan-300 transition-all hover:scale-110 active:scale-95 bg-transparent border-0 p-0 outline-none flex items-center justify-center drop-shadow-[0_0_10px_rgba(6,182,212,0.6)]"
                                         title="Añadir vehículo"
                                       >
-                                        <NuevoVehiculoPlusIcon className="w-[60px] h-[60px]" />
+                                        <NuevoVehiculoPlusIcon className="w-[90px] h-[90px]" />
                                       </button>
 
                                       {/* Icono Imágenes del vehículo */}
                                       <button
                                         onClick={() => setViewingVehFotos({ vehId: v.id, matricula: v.matricula })}
-                                        className="text-violet-400 hover:text-violet-300 transition-all hover:scale-110 active:scale-95 bg-transparent border-0 p-0 outline-none flex items-center justify-center drop-shadow-[0_0_8px_rgba(167,139,250,0.6)]"
+                                        className="text-violet-400 hover:text-violet-300 transition-all hover:scale-110 active:scale-95 bg-transparent border-0 p-0 outline-none flex items-center justify-center drop-shadow-[0_0_10px_rgba(167,139,250,0.6)]"
                                         title={`Imágenes del vehículo (${v.fotos?.length ?? 0})`}
                                       >
-                                        <ImageIcon className="w-[60px] h-[60px]" strokeWidth={1} />
+                                        <ImageIcon className="w-[90px] h-[90px]" strokeWidth={1} />
                                       </button>
 
                                       {/* Icono Papelera roja */}
                                       <button
                                         onClick={() => setConfirmDeleteVehId(v.id)}
-                                        className="text-red-500 hover:text-red-400 transition-all hover:scale-110 active:scale-95 bg-transparent border-0 p-0 outline-none flex items-center justify-center drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                                        className="text-red-500 hover:text-red-400 transition-all hover:scale-110 active:scale-95 bg-transparent border-0 p-0 outline-none flex items-center justify-center drop-shadow-[0_0_10px_rgba(239,68,68,0.6)]"
                                         title="Eliminar vehículo"
                                       >
-                                        <Trash2 className="w-[60px] h-[60px]" strokeWidth={1} />
+                                        <Trash2 className="w-[90px] h-[90px]" strokeWidth={1} />
                                       </button>
                                     </div>
                                   </div>
