@@ -7,7 +7,9 @@
     "dev": "vite --host",
     "dev:mobile": "vite --host --mode mobile",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pull": "git pull origin main",
+    "push": "git push origin main"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
