@@ -877,10 +877,10 @@ export function ClientePage() {
             className="font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-200 to-white tracking-wider leading-none drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]"
             style={{ fontSize: 'clamp(2.8rem, 9vw, 6rem)', lineHeight: '0.85' }}
           >
-            DM CAR
+            {config?.nombre_empresa || 'DM CAR'}
           </span>
-          <span className="text-xs sm:text-sm font-bold tracking-[0.3em] uppercase text-cyan-400/80 mt-1 leading-none">
-            Área de Cliente
+          <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase text-cyan-400 mt-1 leading-none">
+            MODO CLIENTE FINAL (CLIENTE DE TALLER)
           </span>
         </div>
       </header>

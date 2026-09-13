@@ -256,8 +256,8 @@ export function ClientePortalAuthPage() {
         <h1 className="text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-200 to-white">
           {config?.nombre_empresa || 'DM CAR'}
         </h1>
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400/80 mt-1">
-          PORTAL WEB DE CLIENTE
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400 mt-1">
+          MODO CLIENTE FINAL (CLIENTE DE TALLER)
         </p>
       </div>
 
@@ -364,7 +364,7 @@ export function ClientePortalAuthPage() {
                 className="w-full py-3.5 px-4 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
-                <span>ACCEDER AL PORTAL</span>
+                <span>ACCEDER COMO CLIENTE FINAL</span>
               </button>
             </form>
           )}
@@ -450,8 +450,25 @@ export function ClientePortalAuthPage() {
       </div>
 
       {/* Pie de página */}
-      <div className="w-full max-w-md mx-auto text-center pb-4 text-xs text-slate-500">
+      <div className="w-full max-w-md mx-auto text-center pb-4 text-xs text-slate-500 space-y-2">
         <p>Sistema seguro de gestión para talleres · GESTARIAN</p>
+        <div className="flex items-center justify-center gap-3 pt-1">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-medium cursor-pointer"
+          >
+            ← Volver a Modo Usuario (Taller)
+          </button>
+          <span className="text-slate-700">•</span>
+          <button
+            type="button"
+            onClick={() => navigate('/acceso-empleado')}
+            className="text-[11px] text-indigo-400 hover:text-indigo-300 underline font-medium cursor-pointer"
+          >
+            Modo Autorizado
+          </button>
+        </div>
       </div>
     </div>
   )

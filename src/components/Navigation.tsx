@@ -1,7 +1,8 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   Menu, X, Camera, Power, Minimize2, Smartphone, Monitor, ChevronLeft, ChevronRight, Plus, UserPlus,
-  LayoutGrid, Calendar, Wrench, Users, FileText, Scale, Truck, AlertTriangle, Settings, FolderOpen, Inbox, FileCheck
+  LayoutGrid, Calendar, Wrench, Users, FileText, Scale, Truck, AlertTriangle, Settings, FolderOpen, Inbox, FileCheck,
+  Car, Layers, UserCog
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { NAV_ITEMS, FOOTER_NAV } from '../lib/navigation'
@@ -98,6 +99,7 @@ export function DesktopHeader() {
   const next = currentIdx >= 0 && currentIdx < routes.length - 1 ? routes[currentIdx + 1] : null
 
   const [logoColor, setLogoColor] = useState<string | null>(null)
+  const [showModosDropdown, setShowModosDropdown] = useState(false)
 
   useEffect(() => {
     supabase.from('configuracion').select('logo_color').eq('id', 1).maybeSingle().then(({ data }) => {
@@ -152,6 +154,69 @@ export function DesktopHeader() {
             </button>
           )
         })}
+      </div>
+
+      {/* Botón selector de Modos de la aplicación en el Header */}
+      <div className="relative shrink-0">
+        <button
+          onClick={() => { playSound('click'); setShowModosDropdown(!showModosDropdown) }}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 text-[11px] font-bold text-cyan-300 tracking-wide transition-all active:scale-95 cursor-pointer shadow-sm"
+          title="Cambiar modo de la aplicación"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="hidden xl:inline">Modo: </span>
+          <span>Usuario (Taller)</span>
+          <span className="text-[9px] text-cyan-400">▼</span>
+        </button>
+
+        {showModosDropdown && (
+          <div className="absolute right-0 top-full mt-1.5 w-64 p-2 rounded-2xl bg-slate-950/95 border-2 border-cyan-500/40 shadow-2xl backdrop-blur-xl z-[60] space-y-1.5 animate-fade-in text-left">
+            <div className="px-2 py-1 border-b border-slate-800 text-[10px] font-black uppercase text-cyan-400 tracking-wider">
+              Modos de GESTARIAN
+            </div>
+            <button
+              onClick={() => {
+                setShowModosDropdown(false)
+                navigate('/')
+              }}
+              className="w-full p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-left text-xs font-bold text-white flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              <UserCog className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div>
+                <span className="block font-black text-cyan-300">Modo Usuario (Taller)</span>
+                <span className="text-[10px] text-slate-400 block font-normal">Panel principal del taller</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowModosDropdown(false)
+                navigate('/acceso-empleado')
+              }}
+              className="w-full p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-left text-xs font-bold text-white flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              <Wrench className="w-4 h-4 text-indigo-400 shrink-0" />
+              <div>
+                <span className="block font-black text-indigo-300">Modo Autorizado (Personal)</span>
+                <span className="text-[10px] text-slate-400 block font-normal">Órdenes para mecánicos</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowModosDropdown(false)
+                navigate('/cliente/acceso')
+              }}
+              className="w-full p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-left text-xs font-bold text-white flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              <Car className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div>
+                <span className="block font-black text-emerald-300">Modo Cliente Final</span>
+                <span className="text-[10px] text-slate-400 block font-normal">Portal para conductores</span>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
 
       <button
@@ -361,6 +426,46 @@ export function MobileFooter() {
               padding: 'calc(var(--bento-gap) * 2)',
             }}
           >
+            {/* Barra superior de Modos de GESTARIAN en el menú móvil */}
+            <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-white/10 shrink-0 select-none">
+              <div className="flex items-center gap-1.5 text-[10px] font-black tracking-wider text-cyan-400 uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span>Modos:</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => handleNavClick('/')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${
+                    location.pathname !== '/acceso-empleado' && !location.pathname.startsWith('/cliente')
+                      ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-400/50'
+                      : 'bg-slate-900/60 text-slate-400 border border-slate-700'
+                  }`}
+                >
+                  Usuario (Taller)
+                </button>
+                <button
+                  onClick={() => handleNavClick('/acceso-empleado')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${
+                    location.pathname === '/acceso-empleado'
+                      ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-400/50'
+                      : 'bg-slate-900/60 text-slate-400 border border-slate-700'
+                  }`}
+                >
+                  Autorizado
+                </button>
+                <button
+                  onClick={() => handleNavClick('/cliente/acceso')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all ${
+                    location.pathname.startsWith('/cliente')
+                      ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-400/50'
+                      : 'bg-slate-900/60 text-slate-400 border border-slate-700'
+                  }`}
+                >
+                  Cliente Final
+                </button>
+              </div>
+            </div>
+
             <div
               className="w-full h-full max-w-none grid"
               style={{

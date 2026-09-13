@@ -159,17 +159,33 @@ export function EmpleadoAuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0f1d] to-black text-white p-4 sm:p-8 flex flex-col justify-between select-none">
       {/* Cabecera superior */}
-      <div className="max-w-3xl w-full mx-auto text-center pt-2 sm:pt-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/40 text-indigo-300 text-xs font-mono font-bold uppercase tracking-widest mb-2 sm:mb-3">
-          <Wrench className="w-3.5 h-3.5 text-indigo-400" />
-          <span>PORTAL DE PERSONAL AUTORIZADO</span>
+      <div className="max-w-3xl w-full mx-auto text-center pt-2 sm:pt-4 relative">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-indigo-400 text-xs text-indigo-300 font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            ← Volver a Modo Usuario (Taller)
+          </button>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/40 text-indigo-300 text-xs font-mono font-bold uppercase tracking-widest">
+            <Wrench className="w-3.5 h-3.5 text-indigo-400" />
+            <span>MODO AUTORIZADO (PERSONAL DE TALLER)</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/autorizados')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-indigo-400 text-xs text-slate-300 font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            Gestión Autorizados
+          </button>
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-200 to-white">
           {config?.nombre_empresa || 'GESTARIAN TALLER'}
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Panel de Órdenes de Trabajo adjudicadas y Reparaciones asignadas
+          [Dentro de Modo Usuario] Panel de Órdenes de Trabajo adjudicadas para personal y mecánicos autorizados
         </p>
       </div>
 

@@ -196,7 +196,7 @@ export function DeveloperAuthPage() {
                 <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
-              {/* 2. Modo Usuario */}
+              {/* 2. Modo Usuario (Cliente de Taller) */}
               <button
                 type="button"
                 onClick={() => window.open('/', '_blank')}
@@ -205,8 +205,8 @@ export function DeveloperAuthPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-base">🚗</span>
                   <div>
-                    <span className="text-white group-hover:text-cyan-300 transition-colors block">Modo Usuario</span>
-                    <span className="text-[10px] text-slate-500 block">Panel de control de taller</span>
+                    <span className="text-white group-hover:text-cyan-300 transition-colors block">Modo Usuario (Cliente de Taller)</span>
+                    <span className="text-[10px] text-slate-500 block">Panel integral de taller mecánico</span>
                   </div>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
@@ -221,40 +221,40 @@ export function DeveloperAuthPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-base">⚙️</span>
                   <div>
-                    <span className="text-white group-hover:text-cyan-300 transition-colors block">Configuración Usuario</span>
+                    <span className="text-white group-hover:text-cyan-300 transition-colors block">Configuración Taller</span>
                     <span className="text-[10px] text-slate-500 block">Ajustes del taller y perfil</span>
                   </div>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
-              {/* 4. Módulo de Autorizados */}
+              {/* 4. Modo Autorizado (Dentro de Modo Usuario) */}
               <button
                 type="button"
-                onClick={() => window.open('/autorizados', '_blank')}
-                className="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-left text-xs font-bold text-slate-200 flex items-center justify-between transition-all active:scale-95 cursor-pointer shadow-sm group"
+                onClick={() => window.open('/acceso-empleado', '_blank')}
+                className="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/40 text-left text-xs font-bold text-slate-200 flex items-center justify-between transition-all active:scale-95 cursor-pointer shadow-sm group"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-base">👥</span>
                   <div>
-                    <span className="text-white group-hover:text-cyan-300 transition-colors block">Módulo Autorizados</span>
-                    <span className="text-[10px] text-slate-500 block">Permisos de empleados</span>
+                    <span className="text-white group-hover:text-indigo-300 transition-colors block">Modo Autorizado (Personal)</span>
+                    <span className="text-[10px] text-slate-500 block">[En Modo Usuario] Órdenes operarios</span>
                   </div>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
-              {/* 5. Área de Clientes */}
+              {/* 5. Modo Cliente Final (Cliente de Taller) */}
               <button
                 type="button"
-                onClick={() => window.open('/clientes', '_blank')}
-                className="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-left text-xs font-bold text-slate-200 flex items-center justify-between transition-all active:scale-95 cursor-pointer shadow-sm group"
+                onClick={() => window.open('/cliente/acceso', '_blank')}
+                className="p-3 rounded-2xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-left text-xs font-bold text-slate-200 flex items-center justify-between transition-all active:scale-95 cursor-pointer shadow-sm group"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-base">👤</span>
                   <div>
-                    <span className="text-white group-hover:text-cyan-300 transition-colors block">Área de Clientes</span>
-                    <span className="text-[10px] text-slate-500 block">Gestión y expedientes</span>
+                    <span className="text-white group-hover:text-emerald-300 transition-colors block">Modo Cliente Final (Conductor)</span>
+                    <span className="text-[10px] text-slate-500 block">Portal seguimiento del cliente</span>
                   </div>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />

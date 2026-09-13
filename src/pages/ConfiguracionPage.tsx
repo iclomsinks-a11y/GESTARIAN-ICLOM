@@ -550,146 +550,171 @@ export function ConfiguracionPage() {
         }}
       />
 
-      {/* CONTROL MAESTRO DE DESARROLLADOR Y ACCESO A MODOS */}
-      {esDev && (
-        <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-900/90 border-2 border-indigo-500/40 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs font-black text-white uppercase tracking-wider">Control Maestro de Desarrollador</p>
-                <p className="text-[11px] text-slate-400">Accede directamente a cualquier entorno y modo de la aplicación</p>
-              </div>
+      {/* SELECTOR Y ACCESO A MODOS DE LA APLICACIÓN (DISPONIBLE PARA MODO USUARIO Y DESARROLLADOR) */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border-2 border-cyan-500/40 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black">
+              <Layers className="w-5 h-5" />
             </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-              {/* Botón 1: Portal de Acceso / Login de Usuario */}
-              <button
-                type="button"
-                onClick={() => navigate('/registro-taller')}
-                className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer font-extrabold"
-                title="Acceder al Portal de Acceso / Login para identificarse como usuario"
-              >
-                <LogIn className="w-4 h-4 text-slate-950" />
-                <span>Portal de Acceso (Login)</span>
-              </button>
-
-              {/* Botón 2: Control de Licencias */}
-              <button
-                type="button"
-                onClick={() => navigate('/licencias')}
-                className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer font-extrabold"
-                title="Abrir Panel de Control de Licencias de usuarios registrados"
-              >
-                <Key className="w-4 h-4 text-slate-950" />
-                <span>Control de Licencias</span>
-              </button>
-
-              {/* Botón 3: Menú General de Modos */}
-              <button
-                type="button"
-                onClick={() => setMostrarMenuModos(!mostrarMenuModos)}
-                className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.5)] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer font-extrabold"
-              >
-                <Layers className="w-4 h-4 text-slate-950" />
-                <span>Entrar a Modos {mostrarMenuModos ? '▲' : '▼'}</span>
-              </button>
+            <div>
+              <p className="text-xs font-black text-white uppercase tracking-wider">Modos de la Aplicación</p>
+              <p className="text-[11px] text-slate-300">
+                Conmuta entre <strong>Modo Usuario (Cliente de Taller)</strong>, <strong>Modo Autorizado</strong> y <strong>Modo Cliente Final</strong>
+              </p>
             </div>
           </div>
 
-          {/* DESPLEGABLE: ACCESOS DIRECTOS A MODOS PARA DESARROLLO */}
-          {mostrarMenuModos && (
-            <div className="p-4 rounded-2xl bg-slate-900/95 border-2 border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.2)] animate-fade-in space-y-3">
-              <div className="flex items-center justify-between border-b border-amber-500/20 pb-2">
-                <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
-                  <Sparkles className="w-4 h-4" />
-                  <span>MODOS DE LA APLICACIÓN (ACCESO RÁPIDO DESARROLLADOR)</span>
-                </div>
-                <span className="text-[10px] text-slate-400">
-                  Podrás volver aquí en cualquier momento con el botón flotante superior
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-                {/* 1. Formulario Registro */}
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+            {esDev && (
+              <>
                 <button
                   type="button"
                   onClick={() => navigate('/registro-taller')}
-                  className="p-3.5 rounded-xl bg-slate-950 border border-emerald-500/40 hover:border-emerald-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-md"
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer font-extrabold"
+                  title="Acceder al Portal de Registro para nuevos talleres"
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black text-emerald-400 uppercase tracking-wider group-hover:text-emerald-300">
-                      1. Formulario Registro
-                    </span>
-                    <Building2 className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-snug">
-                    Alta de nuevos talleres y datos fiscales de clientes GESTARIAN
-                  </p>
+                  <LogIn className="w-4 h-4 text-slate-950" />
+                  <span>Registro Taller</span>
                 </button>
 
-                {/* 2. Modo Usuario */}
                 <button
                   type="button"
-                  onClick={() => {
-                    localStorage.setItem('gestarian_dev_mode', 'false')
-                    setVistaModo('usuario')
-                    setMostrarMenuModos(false)
-                    navigate('/')
-                  }}
-                  className="p-3.5 rounded-xl bg-slate-950 border border-cyan-500/40 hover:border-cyan-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-md"
+                  onClick={() => navigate('/licencias')}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer font-extrabold"
+                  title="Abrir Panel de Control de Licencias"
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black text-cyan-400 uppercase tracking-wider group-hover:text-cyan-300">
-                      2. Modo Usuario
-                    </span>
-                    <UserCog className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-snug">
-                    Panel del titular/administrador de taller (Gestión interna)
-                  </p>
+                  <Key className="w-4 h-4 text-slate-950" />
+                  <span>Control Licencias</span>
                 </button>
+              </>
+            )}
 
-                {/* 3. Área de Cliente */}
-                <button
-                  type="button"
-                  onClick={() => navigate('/cliente/acceso')}
-                  className="p-3.5 rounded-xl bg-slate-950 border border-blue-500/40 hover:border-blue-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-md"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black text-blue-400 uppercase tracking-wider group-hover:text-blue-300">
-                      3. Área de Cliente
-                    </span>
-                    <Car className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-snug">
-                    Portal de consulta y seguimiento para conductores
-                  </p>
-                </button>
-
-                {/* 4. Modo Empleado */}
-                <button
-                  type="button"
-                  onClick={() => navigate('/acceso-empleado')}
-                  className="p-3.5 rounded-xl bg-slate-950 border border-indigo-500/40 hover:border-indigo-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-md"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black text-indigo-400 uppercase tracking-wider group-hover:text-indigo-300">
-                      4. Modo Empleado
-                    </span>
-                    <Bot className="w-4 h-4 text-indigo-400" />
-                  </div>
-                  <p className="text-[11px] text-slate-400 leading-snug">
-                    Portal de personal autorizado para órdenes de trabajo
-                  </p>
-                </button>
-              </div>
-            </div>
-          )}
+            {/* Botón Selector de Modos */}
+            <button
+              type="button"
+              onClick={() => setMostrarMenuModos(!mostrarMenuModos)}
+              className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-600 hover:from-cyan-400 hover:to-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer font-extrabold"
+            >
+              <Layers className="w-4 h-4 text-slate-950" />
+              <span>Ver Modos {mostrarMenuModos ? '▲' : '▼'}</span>
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* DESPLEGABLE: ACCESOS DIRECTOS A LOS MODOS */}
+        {mostrarMenuModos && (
+          <div className="p-4 rounded-2xl bg-slate-900/95 border-2 border-cyan-500/40 shadow-[0_0_30px_rgba(6,182,212,0.25)] animate-fade-in space-y-3">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2">
+              <div className="flex items-center gap-2 text-cyan-400 font-black text-xs uppercase tracking-wider">
+                <Sparkles className="w-4 h-4" />
+                <span>MODOS DE LA PLATAFORMA GESTARIAN</span>
+              </div>
+              <span className="text-[10px] text-slate-400">
+                Selecciona el entorno de trabajo activo
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+              {/* 1. Modo Usuario (Cliente de Taller) */}
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.setItem('gestarian_dev_mode', 'false')
+                  setVistaModo('usuario')
+                  setMostrarMenuModos(false)
+                  navigate('/')
+                }}
+                className="p-3.5 rounded-xl bg-slate-950 border-2 border-cyan-500/60 hover:border-cyan-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-black text-cyan-400 uppercase tracking-wider group-hover:text-cyan-300">
+                    1. Modo Usuario (Cliente de Taller)
+                  </span>
+                  <UserCog className="w-4 h-4 text-cyan-400" />
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Panel integral del titular y administrador del taller mecánico (Clientes, Presupuestos, Facturas, Balances)
+                </p>
+                <span className="inline-block mt-2 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+                  Modo Activo Principal
+                </span>
+              </button>
+
+              {/* 2. Modo Autorizado (Dentro de Modo Usuario) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMostrarMenuModos(false)
+                  navigate('/acceso-empleado')
+                }}
+                className="p-3.5 rounded-xl bg-slate-950 border-2 border-indigo-500/60 hover:border-indigo-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-[0_0_15px_rgba(99,102,241,0.15)]"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-black text-indigo-400 uppercase tracking-wider group-hover:text-indigo-300">
+                    2. Modo Autorizado (Personal)
+                  </span>
+                  <Wrench className="w-4 h-4 text-indigo-400" />
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  [Dentro de Modo Usuario] Acceso directo para operarios y mecánicos autorizados a sus órdenes de trabajo
+                </p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className="inline-block px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-400/40">
+                    Personal del Taller
+                  </span>
+                </div>
+              </button>
+
+              {/* 3. Modo Cliente Final (Cliente de Taller) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMostrarMenuModos(false)
+                  navigate('/cliente/acceso')
+                }}
+                className="p-3.5 rounded-xl bg-slate-950 border-2 border-emerald-500/60 hover:border-emerald-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-wider group-hover:text-emerald-300">
+                    3. Modo Cliente Final
+                  </span>
+                  <Car className="w-4 h-4 text-emerald-400" />
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Portal de consulta y seguimiento para clientes y conductores del taller (vehículos, fotos, presupuestos y citas)
+                </p>
+                <span className="inline-block mt-2 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+                  Cliente de Taller
+                </span>
+              </button>
+
+              {/* 4. Formulario Registro Taller */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMostrarMenuModos(false)
+                  navigate('/registro-taller')
+                }}
+                className="p-3.5 rounded-xl bg-slate-950 border-2 border-teal-500/60 hover:border-teal-400 text-left transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer shadow-[0_0_15px_rgba(20,184,166,0.15)]"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-black text-teal-400 uppercase tracking-wider group-hover:text-teal-300">
+                    4. Portal Registro Taller
+                  </span>
+                  <Building2 className="w-4 h-4 text-teal-400" />
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Alta de nuevos talleres mecánicos y datos fiscales de clientes de la plataforma GESTARIAN
+                </p>
+                <span className="inline-block mt-2 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-teal-500/20 text-teal-300 border border-teal-400/40">
+                  Nuevo Taller
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center justify-between bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
         <h2 className="text-xl font-black text-white tracking-tight">
@@ -769,22 +794,39 @@ export function ConfiguracionPage() {
             </button>
           </div>
         ) : (
-          <div className="pt-2">
+          <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => navigate('/autorizados')}
               className="w-full flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-teal-500/10 border border-teal-500/30 hover:bg-teal-500/20 hover:border-teal-400/50 transition-all active:scale-[0.99] group cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors shrink-0">
-                  <UserCog className="w-6 h-6 text-teal-400" />
+                <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors shrink-0">
+                  <UserCog className="w-5 h-5 text-teal-400" />
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-white text-sm uppercase tracking-wide">GESTIÓN DE PERSONAL AUTORIZADO (EMPLEADOS DEL TALLER)</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Alta de operarios, asignación de roles, mecánicos y permisos de acceso</p>
+                  <p className="font-bold text-white text-xs uppercase tracking-wide">GESTIÓN DE AUTORIZADOS</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Alta de operarios, roles y permisos</p>
                 </div>
               </div>
-              <Sparkles className="w-5 h-5 text-teal-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+              <Sparkles className="w-4 h-4 text-teal-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/acceso-empleado')}
+              className="w-full flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 hover:border-indigo-400/50 transition-all active:scale-[0.99] group cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/30 transition-colors shrink-0">
+                  <Wrench className="w-5 h-5 text-indigo-400" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-white text-xs uppercase tracking-wide">ENTRAR EN MODO AUTORIZADO</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Ver panel y órdenes de trabajo de operarios</p>
+                </div>
+              </div>
+              <Sparkles className="w-4 h-4 text-indigo-400 opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
           </div>
         )}
